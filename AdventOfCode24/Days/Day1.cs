@@ -6,13 +6,13 @@
         {
             var inputs = ReadFile("Day1.txt");
             var firstList = inputs
-                .Select(x => int.Parse(x.Substring(0, x.Length / 2)
+                .Select(x => int.Parse(x[..(x.Length / 2)]
                     .Trim()))
                 .Order()
                 .ToArray();
 
             var secondList = inputs
-                .Select(x => int.Parse(x.Substring(x.Length / 2)
+                .Select(x => int.Parse(x[(x.Length / 2)..]
                     .Trim()))
                 .Order()
                 .ToArray();

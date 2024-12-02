@@ -6,7 +6,7 @@ namespace AdventOfCode24
     {
         static void Main(string[] args)
         {
-            DayBase day = new Day1();
+            DayBase day = new Day2();
             day.Start();
         }
     }
