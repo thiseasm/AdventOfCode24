@@ -1,4 +1,5 @@
-﻿using AdventOfCode24.Days;
+﻿using AdventOfCode.Days;
+using AdventOfCode24.Days;
 
 namespace AdventOfCode24
 {
@@ -6,7 +7,7 @@ namespace AdventOfCode24
     {
         static void Main(string[] args)
         {
-            DayBase day = new Day2();
+            DayBase day = new Day3();
             day.Start();
         }
     }
