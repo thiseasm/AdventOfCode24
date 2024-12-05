@@ -34,6 +34,7 @@ namespace AdventOfCode.Days
                 .ToArray();
 
             var sumOfMiddles = 0;
+            var unsafeUpdates = new List<List<int>>();
 
             foreach (var update in updates)
             {
@@ -52,6 +53,7 @@ namespace AdventOfCode.Days
                         if(indexOfRule >= 0 && indexOfRule < i)
                         {
                             isSafe = false;
+                            unsafeUpdates.Add(update);
                             break;
                         }
                     }
@@ -68,9 +70,34 @@ namespace AdventOfCode.Days
                 }
             }
 
-
             Console.WriteLine($"The sum of all middles is:{sumOfMiddles}");
 
+            sumOfMiddles = 0;
+
+            foreach (var update in unsafeUpdates)
+            {
+                var rulesInUpdate = update.Intersect(rulesGrouped.Keys);
+                foreach(var orderingRule in rulesGrouped.Where(x => rulesInUpdate.Contains(x.Key)))
+                {
+                   
+                    foreach (var rule in orderingRule.Value)
+                    {
+                        var indexOfKey = update.FindIndex(x => x == orderingRule.Key);
+                        var indexOfRule = update.FindIndex(x => x == rule);
+
+                        if(indexOfRule < 0 || indexOfRule > indexOfKey)
+                        {
+                            continue;
+                        }
+
+                        (update[indexOfKey], update[indexOfRule]) = (update[indexOfRule], update[indexOfKey]);
+                    }
+                }
+
+                sumOfMiddles += update[update.Count / 2];
+            }
+
+            Console.WriteLine($"The sum of all middles in unsafe updates is:{sumOfMiddles}");
         }
     }
 }
