@@ -47,12 +47,8 @@ namespace AdventOfCode.Days
 
             var possibleLocations = 0;
 
-            var locationsChecked = 0;
-
-            foreach (var location in locationsVisited)
+            foreach ((int, int) location in locationsVisited)
             {
-                locationsChecked++;
-                Console.WriteLine($"{locationsChecked}/{locationsVisited.Count}");
                 var hypotheticalMap = (char[,])startingMap.Clone();
 
                 hypotheticalMap[location.Item1, location.Item2] = '#';
@@ -60,125 +56,87 @@ namespace AdventOfCode.Days
                 var facingDirection = '^';
                 positionOfGuard = startingPosition;
 
+                var positionsVisited = new HashSet<(int, int, char)>();
+
                 while (positionOfGuard.Item1 >= 0 && positionOfGuard.Item1 < xValueCount && positionOfGuard.Item2 >= 0 && positionOfGuard.Item2 < yValueCount)
                 {
-
-                    Console.WriteLine(positionOfGuard);
-
+                    
                     if (facingDirection.Equals('^'))
                     {
                         if (positionOfGuard.Item2 == 0)
                         {
-                            positionOfGuard.Item2--;
-                            continue;
+                            break;
                         }
 
                         var tileInFrontIsBlocked = hypotheticalMap[positionOfGuard.Item1, positionOfGuard.Item2 - 1].Equals('#');
                         if (tileInFrontIsBlocked)
                         {
                             facingDirection = '>';
-                            continue;
                         }
-
-                        var loopBegins = hypotheticalMap[positionOfGuard.Item1, positionOfGuard.Item2 - 1].Equals('X')
-                            && hypotheticalMap[positionOfGuard.Item1, positionOfGuard.Item2 - 2].Equals('#')
-                            && hypotheticalMap[positionOfGuard.Item1 + 1, positionOfGuard.Item2 - 1].Equals('X');
-                        if (loopBegins)
+                        else
                         {
-                            possibleLocations++;
-                            break;
+                            positionOfGuard.Item2--;
                         }
-
-                        positionOfGuard.Item2--;
-
-                        hypotheticalMap[positionOfGuard.Item1, positionOfGuard.Item2 + 1] = 'X';
                     }
-
-                    if (facingDirection.Equals('v'))
+                    else if (facingDirection.Equals('v'))
                     {
                         if (positionOfGuard.Item2 == yValueCount - 1)
                         {
-                            positionOfGuard.Item2++;
-                            continue;
+                            break;
                         }
 
                         var tileInFrontIsBlocked = hypotheticalMap[positionOfGuard.Item1, positionOfGuard.Item2 + 1].Equals('#');
                         if (tileInFrontIsBlocked)
                         {
                             facingDirection = '<';
-                            continue;
                         }
-
-                        var loopBegins = hypotheticalMap[positionOfGuard.Item1, positionOfGuard.Item2 + 1].Equals('X')
-                            && hypotheticalMap[positionOfGuard.Item1, positionOfGuard.Item2 + 2].Equals('#')
-                            && hypotheticalMap[positionOfGuard.Item1 - 1, positionOfGuard.Item2 + 1].Equals('X');
-                        if (loopBegins)
+                        else
                         {
-                            possibleLocations++;
-                            break;
+                            positionOfGuard.Item2++;
                         }
-
-                        positionOfGuard.Item2++;
-
-                        hypotheticalMap[positionOfGuard.Item1, positionOfGuard.Item2 - 1] = 'X';
                     }
-
-                    if (facingDirection.Equals('>'))
+                    else if (facingDirection.Equals('>'))
                     {
                         if (positionOfGuard.Item1 == xValueCount - 1)
                         {
-                            positionOfGuard.Item1++;
-                            continue;
+                            break;
                         }
 
                         var tileInFrontIsBlocked = hypotheticalMap[positionOfGuard.Item1 + 1, positionOfGuard.Item2].Equals('#');
                         if (tileInFrontIsBlocked)
                         {
                             facingDirection = 'v';
-                            continue;
                         }
-
-                        var loopBegins = hypotheticalMap[positionOfGuard.Item1 + 1, positionOfGuard.Item2].Equals('X')
-                            && hypotheticalMap[positionOfGuard.Item1 + 2, positionOfGuard.Item2].Equals('#')
-                            && hypotheticalMap[positionOfGuard.Item1 + 1, positionOfGuard.Item2 + 1].Equals('X');
-                        if (loopBegins)
+                        else
                         {
-                            possibleLocations++;
-                            break;
+                            positionOfGuard.Item1++;
                         }
-
-                        positionOfGuard.Item1++;
-
-                        hypotheticalMap[positionOfGuard.Item1 - 1, positionOfGuard.Item2] = 'X';
                     }
-
-                    if (facingDirection.Equals('<'))
+                    else if (facingDirection.Equals('<'))
                     {
                         if (positionOfGuard.Item1 == 0)
                         {
-                            positionOfGuard.Item1--;
-                            continue;
+                            break;
                         }
 
                         var tileInFrontIsBlocked = hypotheticalMap[positionOfGuard.Item1 - 1, positionOfGuard.Item2].Equals('#');
                         if (tileInFrontIsBlocked)
                         {
                             facingDirection = '^';
-                            continue;
                         }
-
-                        var loopBegins = hypotheticalMap[positionOfGuard.Item1 - 1, positionOfGuard.Item2].Equals('X')
-                            && hypotheticalMap[positionOfGuard.Item1 - 2, positionOfGuard.Item2].Equals('#')
-                            && hypotheticalMap[positionOfGuard.Item1 - 1, positionOfGuard.Item2 - 1].Equals('X');
-                        if (loopBegins)
+                        else
                         {
-                            possibleLocations++;
-                            break;
+                            positionOfGuard.Item1--;
                         }
+                        
+                    }
 
-                        positionOfGuard.Item1--;
+                    (int, int, char facingDirection) currentPosition = (positionOfGuard.Item1, positionOfGuard.Item2, facingDirection);
 
-                        hypotheticalMap[positionOfGuard.Item1 + 1, positionOfGuard.Item2] = 'X';
+                    if(!positionsVisited.Add(currentPosition))
+                    {
+                        possibleLocations++;
+                        break;
                     }
                 }
             }
@@ -191,6 +149,7 @@ namespace AdventOfCode.Days
         {
             var positionsVisited = 1;
             var facingDirection = '^';
+            map[positionOfGuard.Item1, positionOfGuard.Item2] = 'X';
 
             while (positionOfGuard.Item1 >= 0 && positionOfGuard.Item1 < xValueCount && positionOfGuard.Item2 >= 0 && positionOfGuard.Item2 < yValueCount)
             {
@@ -217,7 +176,7 @@ namespace AdventOfCode.Days
 
                     positionOfGuard.Item2--;
 
-                    map[positionOfGuard.Item1, positionOfGuard.Item2 + 1] = 'X';
+                    map[positionOfGuard.Item1, positionOfGuard.Item2] = 'X';
                 }
 
                 if (facingDirection.Equals('v'))
@@ -243,7 +202,7 @@ namespace AdventOfCode.Days
 
                     positionOfGuard.Item2++;
 
-                    map[positionOfGuard.Item1, positionOfGuard.Item2 - 1] = 'X';
+                    map[positionOfGuard.Item1, positionOfGuard.Item2] = 'X';
                 }
 
                 if (facingDirection.Equals('>'))
@@ -269,7 +228,7 @@ namespace AdventOfCode.Days
 
                     positionOfGuard.Item1++;
 
-                    map[positionOfGuard.Item1 - 1, positionOfGuard.Item2] = 'X';
+                    map[positionOfGuard.Item1, positionOfGuard.Item2] = 'X';
                 }
 
                 if (facingDirection.Equals('<'))
@@ -295,7 +254,7 @@ namespace AdventOfCode.Days
 
                     positionOfGuard.Item1--;
 
-                    map[positionOfGuard.Item1 + 1, positionOfGuard.Item2] = 'X';
+                    map[positionOfGuard.Item1, positionOfGuard.Item2] = 'X';
                 }
             }
 
