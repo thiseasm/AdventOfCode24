@@ -9,15 +9,15 @@ namespace AdventOfCode.Days
             var inputs = ReadFile("Day8.txt");
 
             var xValueCount = inputs[0].Length;
-            var yValueCount = inputs.Count();
+            var yValueCount = inputs.Length;
 
-            char[,] map = new char[xValueCount, yValueCount];
+            var map = new char[xValueCount, yValueCount];
 
             Dictionary<char, List<(int, int)>> antennaLocations = [];
 
-            for (int x = 0; x < xValueCount; x++)
+            for (var x = 0; x < xValueCount; x++)
             {
-                for (int y = 0; y < yValueCount; y++)
+                for (var y = 0; y < yValueCount; y++)
                 {
                     map[x, y] = inputs[y][x];
                     if(map[x, y].Equals('.'))
@@ -25,7 +25,7 @@ namespace AdventOfCode.Days
                         continue;
                     }
 
-                    if (antennaLocations.TryGetValue(map[x, y], out List<(int, int)>? registeredLocations))
+                    if (antennaLocations.TryGetValue(map[x, y], out var registeredLocations))
                     {
                         registeredLocations.Add((x, y));
                     }
@@ -40,23 +40,23 @@ namespace AdventOfCode.Days
 
             foreach (var location in antennaLocations) 
             {
-                for(int current = 0; current < location.Value.Count; current++)
+                for(var current = 0; current < location.Value.Count; current++)
                 {
-                    for(int other = current + 1; other < location.Value.Count; other++)
+                    for(var other = current + 1; other < location.Value.Count; other++)
                     {
                         var firstAntennaLocation = location.Value[current];
                         var secondAntennaLocation = location.Value[other];
 
                         var xDistance = Math.Abs(firstAntennaLocation.Item1 - secondAntennaLocation.Item1);
                         var yDistance = Math.Abs(firstAntennaLocation.Item2 - secondAntennaLocation.Item2);
-                       var firstAntinode = FindFirstAntinode(firstAntennaLocation, secondAntennaLocation, xDistance, yDistance);
+                        var firstAntinode = FindAntinode(firstAntennaLocation, secondAntennaLocation, xDistance, yDistance);
 
                         if (PositionIsInsideBounds(xValueCount, yValueCount, firstAntinode))
                         {
                             antinodeLocations.Add(firstAntinode);
                         }
 
-                        var secondAntinode = FindSecondAntinode(firstAntennaLocation, secondAntennaLocation, xDistance, yDistance);
+                        var secondAntinode = FindAntinode(secondAntennaLocation, firstAntennaLocation, xDistance, yDistance);
                         if (PositionIsInsideBounds(xValueCount, yValueCount, secondAntinode))
                         {
                             antinodeLocations.Add(secondAntinode);
@@ -66,34 +66,66 @@ namespace AdventOfCode.Days
             }
 
             Console.WriteLine($"All unique antinode locations are: {antinodeLocations.Count}");
+
+            HashSet<(int, int)> antinodeLocationsAfterHarmonics = [];
+
+            foreach (var location in antennaLocations)
+            {
+                if (location.Value.Count > 1)
+                {
+                    foreach (var point in location.Value)
+                    {
+                        antinodeLocationsAfterHarmonics.Add(point);
+                    }
+                }
+                
+                for (var current = 0; current < location.Value.Count; current++)
+                {
+                    for (var other = current + 1; other < location.Value.Count; other++)
+                    {
+                        var firstAntennaLocation = location.Value[current];
+                        var secondAntennaLocation = location.Value[other];
+
+                        var xDistance = Math.Abs(firstAntennaLocation.Item1 - secondAntennaLocation.Item1);
+                        var yDistance = Math.Abs(firstAntennaLocation.Item2 - secondAntennaLocation.Item2);
+
+                        var nextAntinode = FindAntinode(firstAntennaLocation, secondAntennaLocation, xDistance, yDistance);
+                        var target = firstAntennaLocation;
+                        while (PositionIsInsideBounds(xValueCount, yValueCount, nextAntinode))
+                        {
+                            antinodeLocationsAfterHarmonics.Add(nextAntinode);
+                            var temp = nextAntinode;
+                            nextAntinode = FindAntinode(nextAntinode, target, xDistance, yDistance);
+                            target = temp;
+                        }
+
+                        nextAntinode = FindAntinode(secondAntennaLocation, firstAntennaLocation, xDistance, yDistance);
+                        target = secondAntennaLocation;
+                        while (PositionIsInsideBounds(xValueCount, yValueCount, nextAntinode))
+                        {
+                            antinodeLocationsAfterHarmonics.Add(nextAntinode);
+                            var temp = nextAntinode;
+                            nextAntinode = FindAntinode(nextAntinode, target, xDistance, yDistance);
+                            target = temp;
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine($"All unique antinode locations after harmonics are: {antinodeLocationsAfterHarmonics.Count}");
         }
 
-        private static (int , int ) FindFirstAntinode((int, int) firstAntennaLocation, (int, int) secondAntennaLocation, int xDistance, int yDistance)
+        private static (int , int ) FindAntinode((int, int) fromPoint, (int, int) toPoint, int xDistance, int yDistance)
         {
-            var firstAntinodeXPosition = firstAntennaLocation.Item1 - secondAntennaLocation.Item1 > 0
-                                        ? firstAntennaLocation.Item1 + xDistance
-                                        : firstAntennaLocation.Item1 - xDistance;
+            var antinodeXPosition = fromPoint.Item1 > toPoint.Item1
+                                        ? fromPoint.Item1 + xDistance
+                                        : fromPoint.Item1 - xDistance;
 
-            var firstAntinodeYPosition = firstAntennaLocation.Item2 - secondAntennaLocation.Item2 > 0
-                                        ? firstAntennaLocation.Item2 + yDistance
-                                        : firstAntennaLocation.Item2 - yDistance;
+            var antinodeYPosition = fromPoint.Item2 > toPoint.Item2
+                                        ? fromPoint.Item2 + yDistance
+                                        : fromPoint.Item2 - yDistance;
 
-            var firstAntinode = (firstAntinodeXPosition, firstAntinodeYPosition);
-            return firstAntinode;
-        }
-
-        private static (int , int ) FindSecondAntinode((int, int) firstAntennaLocation, (int, int) secondAntennaLocation, int xDistance, int yDistance)
-        {
-            var secondAntinodeXPosition = secondAntennaLocation.Item1 - firstAntennaLocation.Item1 > 0
-                                        ? secondAntennaLocation.Item1 + xDistance
-                                        : secondAntennaLocation.Item1 - xDistance;
-
-            var secondAntinodeYPosition = secondAntennaLocation.Item2 - firstAntennaLocation.Item2 > 0
-                                        ? secondAntennaLocation.Item2 + yDistance
-                                        : secondAntennaLocation.Item2 - yDistance;
-
-            var secondAntinode = (secondAntinodeXPosition, secondAntinodeYPosition);
-            return secondAntinode;
+            return ( antinodeXPosition,  antinodeYPosition);
         }
 
         private static bool PositionIsInsideBounds(int xValueCount, int yValueCount, (int, int) position)
