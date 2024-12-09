@@ -1,13 +1,12 @@
 ﻿using AdventOfCode.Days;
-using AdventOfCode24.Days;
 
-namespace AdventOfCode24
+namespace AdventOfCode
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            DayBase day = new Day8();
+            DayBase day = new Day9();
             day.Start();
         }
     }

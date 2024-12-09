@@ -1,6 +1,4 @@
-﻿using AdventOfCode24.Days;
-
-namespace AdventOfCode.Days
+﻿namespace AdventOfCode.Days
 {
     public class Day8 : DayBase
     {
