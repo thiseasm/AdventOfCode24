@@ -33,14 +33,12 @@ public class Day10 : DayBase
         var sumOfScores = 0;
         foreach (var startingLocation in trailHeadLocations)
         {
-            var scoreOfTrail = 0;
+            var peaksReachedFromCurrentTrail = new List<Point>();
             var currentLocation = startingLocation;
             
             var alreadyExploredPaths = new List<Point>();
             var branchingPoints = new Stack<Point>();
             
-            
-
             var trailHasPathsToExplore = true;
 
             while (trailHasPathsToExplore)
@@ -85,9 +83,9 @@ public class Day10 : DayBase
                 }
                 else
                 {
-                    if (currentElevation == peakElevation)
+                    if (currentElevation == peakElevation && !peaksReachedFromCurrentTrail.Contains(currentLocation))
                     {
-                        scoreOfTrail++;
+                        peaksReachedFromCurrentTrail.Add(currentLocation);
                     }
 
                     if (branchingPoints.Count > 0)
@@ -102,7 +100,7 @@ public class Day10 : DayBase
                 }
             }
 
-            sumOfScores += scoreOfTrail;
+            sumOfScores += peaksReachedFromCurrentTrail.Count;
         }
         
         Console.WriteLine($"The sum of all trail score is: {sumOfScores}");
