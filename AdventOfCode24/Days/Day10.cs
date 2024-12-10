@@ -30,6 +30,85 @@ public class Day10 : DayBase
             }
         }
 
+        CalculatePart1(trailHeadLocations, map, xValueCount, yValueCount, peakElevation);
+        
+        var sumOfScores = 0;
+        foreach (var startingLocation in trailHeadLocations)
+        {
+            var scoreOfTrail = 0;
+            var currentLocation = startingLocation;
+            
+            var alreadyExploredPaths = new List<Point>();
+            var branchingPoints = new Stack<Point>();
+            
+            var trailHasPathsToExplore = true;
+            
+            while (trailHasPathsToExplore)
+            {
+                var pointsToExplore = new List<Point>();
+                var currentElevation = int.Parse(map[currentLocation.X, currentLocation.Y]);
+                if (currentLocation.X < xValueCount - 1)
+                {
+                    var pointToExplore = currentLocation with { X = currentLocation.X + 1 };
+                    PeekAdjacentLocation(map, pointToExplore, currentElevation, pointsToExplore);
+                }
+
+                if (currentLocation.X > 0)
+                {
+                    var pointToExplore = currentLocation with { X = currentLocation.X - 1 };
+                    PeekAdjacentLocation(map, pointToExplore, currentElevation, pointsToExplore);
+                }
+
+                if (currentLocation.Y < yValueCount - 1)
+                {
+                    var pointToExplore = currentLocation with { Y = currentLocation.Y + 1 };
+                    PeekAdjacentLocation(map, pointToExplore, currentElevation, pointsToExplore);
+                }
+
+                if (currentLocation.Y > 0)
+                {
+                    var pointToExplore = currentLocation with { Y = currentLocation.Y - 1 };
+                    PeekAdjacentLocation(map, pointToExplore, currentElevation, pointsToExplore);
+                }
+                
+                var availablePaths = pointsToExplore.Where(x => !alreadyExploredPaths.Contains(x)).ToList();
+
+                if (availablePaths.Count > 1)
+                {
+                    branchingPoints.Push(currentLocation);
+                    currentLocation = availablePaths[0];
+                    alreadyExploredPaths.Add(currentLocation);
+                }
+                else if (availablePaths.Count == 1)
+                {
+                    currentLocation = availablePaths[0];
+                }
+                else
+                {
+                    if (currentElevation == peakElevation)
+                    {
+                        scoreOfTrail++;
+                    }
+
+                    if (branchingPoints.Count > 0)
+                    {
+                        currentLocation = branchingPoints.Pop();
+                    }
+                    else
+                    {
+                        trailHasPathsToExplore = false;
+                    }
+                }
+            }
+
+            sumOfScores += scoreOfTrail;
+        }
+        
+        Console.WriteLine($"The sum of all trail scores is: {sumOfScores}");
+    }
+
+    private static void CalculatePart1(List<Point> trailHeadLocations, string[,] map, int xValueCount, int yValueCount, int peakElevation)
+    {
         var sumOfScores = 0;
         foreach (var startingLocation in trailHeadLocations)
         {
