@@ -13,67 +13,53 @@ public class Day11 : DayBase
         
         CalculateFor25Rounds(stones);
 
-        var stonesToExamine = new Queue<long>();
+        var currentState = new Dictionary<long,long>();
         foreach (var stone in stones)
         {
-            stonesToExamine.Enqueue(stone);
+            currentState.Add(stone,1);
         }
-
-        var numberOfStones = stonesToExamine.Count;
-        var timesBlinked = 0;
-        while (timesBlinked < 75 )
+        
+        var nextState = new Dictionary<long,long>
         {
-            Console.WriteLine(timesBlinked);
-            var generatedStones = new List<long>();
-            while (stonesToExamine.Count != 0)
+            { 0, 0 },
+            { 1, 0 }
+        };
+        for(var timesBlinked = 0; timesBlinked < 75; timesBlinked++)
+        {
+            foreach (var (engraving, count) in currentState)
             {
-                var stone = stonesToExamine.Dequeue();
-                
-                if (Cache.Keys.Contains($"{stone}"))
+                if (engraving == 0)
                 {
-                    var result = (List<long>)Cache.Get($"{stone}")!;
-                    if (result.Count > 1)
-                    {
-                        numberOfStones++;
-                    }
-                    generatedStones.AddRange(result);
+                    nextState[1] += count;
+                }
+                else if (engraving.ToString().Length % 2 == 0)
+                {
+                    var (firstEngraving, secondEngraving) = SplitEngraving(engraving);
+
+                    nextState.TryAdd(firstEngraving, 0);
+                    nextState[firstEngraving] += count;
+
+                    nextState.TryAdd(secondEngraving, 0);
+                    nextState[secondEngraving] += count;
                 }
                 else
                 {
-                    var key = $"{stone}";
-                    if (stone == 0)
-                    {
-                        stone++;
-                        Cache.Set(key, new List<long>{stone});
-                    }
-                    else if (stone.ToString().Length % 2 == 0)
-                    {
-                        var (firstEngraving, secondEngraving) = SplitEngraving(stone);
-
-                        stone = firstEngraving;
-                        Cache.Set(key, new List<long>{firstEngraving, secondEngraving});
-                        generatedStones.Add(secondEngraving);
-                        numberOfStones++;
-                    }
-                    else
-                    {
-                        stone = MultiplyStone(stone);
-                        Cache.Set(key, new List<long>{stone});
-                    }
-                
-                    generatedStones.Add(stone);
+                    var result = MultiplyStone(engraving);
+                    nextState.TryAdd(result, 0);
+                    nextState[result] += count;
                 }
             }
-            
-            foreach (var generated in generatedStones)
-            {
-                stonesToExamine.Enqueue(generated);
-            }
 
-            timesBlinked++;
+            currentState = nextState;
+            nextState = new Dictionary<long,long>
+            {
+                { 0, 0 },
+                { 1, 0 }
+            };
+
         }
         
-        Console.WriteLine($"After blinking even more there are {numberOfStones}");
+        Console.WriteLine($"After blinking even more there are {currentState.Values.Sum()}");
     }
 
     private static long MultiplyStone(long stone)
