@@ -11,8 +11,8 @@ public class Day13 : DayBase
         long tokensSpent = 0;
         foreach (var machine in inputs)
         {
-            var machineConfig = GetMachineConfiguration(machine, out var prize);
-            long winningCombinationsCost = 0;
+            var machineConfig = GetMachineConfiguration(machine);
+            long winningCombinationCost = 0;
             
             for (var a = 0; a < 100; a++)
             {
@@ -21,28 +21,56 @@ public class Day13 : DayBase
                     var xResult = a * machineConfig.A.Xmovement + b * machineConfig.B.Xmovement;
                     var yResult = a * machineConfig.A.Ymovement + b * machineConfig.B.Ymovement;
 
-                    if (xResult == prize.X && yResult == prize.Y)
+                    if (xResult == machineConfig.Prize.X && yResult == machineConfig.Prize.Y)
                     {
                         var cost = a * 3 + b;
-                        if (winningCombinationsCost == 0 || winningCombinationsCost > cost)
+                        if (winningCombinationCost == 0 || winningCombinationCost > cost)
                         {
-                            winningCombinationsCost = cost;
+                            winningCombinationCost = cost;
                         }
                     }
                 }
             }
 
-            tokensSpent += winningCombinationsCost;
-
+            tokensSpent += winningCombinationCost;
         }
         Console.WriteLine($"The cost for winning all machines is {tokensSpent}");
 
         const long newDistance = 10000000000000;
         
-        
-    }
+        var machinesThatCanBeWon = new Dictionary<Machine, long>();
+        foreach (var machine in inputs)
+        {
+            var machineConfig = GetMachineConfiguration(machine);
+            
+            // Cramer's Law
+            // machineConfig.A.Xmovement * a + machineConfig.B.Xmovement * b = machineConfig.Prize.X + newDistance
+            // machineConfig.A.Ymovement * a + machineConfig.B.Ymovement * b = machineConfig.Prize.Y + newDistance
 
-    private static Machine GetMachineConfiguration(string machine, out Point prize)
+            var denominator = machineConfig.A.Xmovement * machineConfig.B.Ymovement - machineConfig.A.Ymovement * machineConfig.B.Xmovement;
+            var aNumerator = machineConfig.B.Ymovement * (machineConfig.Prize.X + newDistance) - machineConfig.B.Xmovement * (machineConfig.Prize.Y + newDistance);
+
+            var bNumerator = machineConfig.A.Xmovement * (machineConfig.Prize.Y + newDistance) - machineConfig.A.Ymovement * (machineConfig.Prize.X + newDistance);
+
+            if (aNumerator % denominator != 0 || bNumerator % denominator != 0)
+            {
+                continue;
+            }
+
+            var a = aNumerator / denominator;
+            var b = bNumerator / denominator;
+            
+            machinesThatCanBeWon.Add(machineConfig, a * 3 + b);
+        }
+        
+        
+        Console.WriteLine($"The cost for winning all machines with the new distances is {machinesThatCanBeWon.Values.Sum()}");
+    }
+        
+        
+
+
+    private static Machine GetMachineConfiguration(string machine)
     {
         var config = machine.Replace(",", string.Empty).Split("\r\n");
         var buttonA = GetButton(config[0]);
@@ -50,7 +78,7 @@ public class Day13 : DayBase
         var prizeLocation = config[2].Split(" ").Skip(1).ToArray();
         var prizeX = int.Parse(new string(prizeLocation[0].Skip(2).ToArray()));
         var prizeY = int.Parse(new string(prizeLocation[1].Skip(2).ToArray()));
-        prize = new Point(prizeX, prizeY);
+        var prize = new Point(prizeX, prizeY);
 
         var machineConfig = new Machine(buttonA, buttonB, prize);
         return machineConfig;
