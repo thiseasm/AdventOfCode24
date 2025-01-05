@@ -32,181 +32,47 @@ namespace AdventOfCode.Days
                 }
             }
 
-            var allPathsExplored = false;
             var lowestScore = long.MaxValue;
 
-            var pathsAlreadyTraveled = new Stack<KeyValuePair<PositionWithDirection, List<PositionWithDirection>>>();
+            var priorityQueue = new PriorityQueue<(PositionWithDirection position, int score), int>();
+            var visited = new HashSet<PositionWithDirection>();
 
-            while (!allPathsExplored)
+            var startingPosition = new PositionWithDirection { Position = startPosition, Direction = Direction.East };
+            priorityQueue.Enqueue((startingPosition, 0), 0);
+
+            while (priorityQueue.Count > 0)
             {
-                var currentPosition = new PositionWithDirection
+                var (currentPosition, score) = priorityQueue.Dequeue();
+
+                if (currentPosition.Position == endPosition && score < lowestScore)
+                { 
+                    lowestScore = score; 
+                }
+
+                if (!visited.Add(currentPosition))
                 {
-                    Position = endPosition,
-                    Direction = 0
-                };
+                    continue;
+                }
 
-                long score = 0;
-
-                while (score < lowestScore)
+                foreach (var (dx, dy, direction) in Directions)
                 {
-                    var adjustcentPositions = SurveyAdjustcentPositions(currentPosition, map);
+                    var nextPoint = currentPosition.Position with { X = currentPosition.Position.X + dx, Y = currentPosition.Position.Y + dy };   
 
-                    if (adjustcentPositions.Any(x => x.Position.Equals(startPosition)))
+                    if (nextPoint.X < 0 || nextPoint.X >= xValueCount || nextPoint.Y < 0  || nextPoint.Y >= yValueCount || map[nextPoint.X, nextPoint.Y].Equals("#"))
                     {
-                        var finalPosition = adjustcentPositions.First(x => x.IsFinal);
-                        score += finalPosition.Direction == currentPosition.Direction ? 1 : 1000;
-                       
-                        if (score < lowestScore)
-                        {
-                            lowestScore = score;
-                        }
-
-                        currentPosition = new PositionWithDirection
-                        {
-                            Position = endPosition,
-                            Direction = 0
-                        };
-
-                        if (!pathsAlreadyTraveled.Any())
-                        {
-                            allPathsExplored = true;
-                        }
-                        break;
-                    }
-
-                    if (adjustcentPositions.Count > 1)
-                    {
-                        if (!pathsAlreadyTraveled.Any(x => x.Key.Equals(currentPosition)))
-                        {
-                            pathsAlreadyTraveled.Push(new KeyValuePair<PositionWithDirection, List<PositionWithDirection>>(currentPosition, []));
-                        }
-
-                        if (pathsAlreadyTraveled.Any() && pathsAlreadyTraveled.Peek().Key.Equals(currentPosition))
-                        {
-                            var nextPosition = adjustcentPositions.FirstOrDefault(x => !pathsAlreadyTraveled.Peek().Value.Contains(x));
-                            if (nextPosition.Equals((PositionWithDirection)default))
-                            {
-                                pathsAlreadyTraveled.Pop();
-                                currentPosition = new PositionWithDirection
-                                {
-                                    Position = endPosition,
-                                    Direction = 0
-                                };
-
-                                if (!pathsAlreadyTraveled.Any())
-                                {
-                                    allPathsExplored = true;
-                                }
-                                break;
-                            }
-
-                            pathsAlreadyTraveled.Peek().Value.Add(nextPosition);
-
-                            score += currentPosition.Direction == nextPosition.Direction ? 1 : 1001;
-                            currentPosition = nextPosition;
-                        }
-                        else
-                        {
-                            var nextPosition = pathsAlreadyTraveled.FirstOrDefault(x => x.Key.Equals(currentPosition)).Value.Last();
-                            score += currentPosition.Direction == nextPosition.Direction ? 1 : 1001;
-                            currentPosition = nextPosition;
-                        }
-
                         continue;
                     }
 
-                    if (adjustcentPositions.Count == 1)
-                    {
-                        var nextPosition = adjustcentPositions.First();
-                        score += currentPosition.Direction == nextPosition.Direction ? 1 : 1001;
-                        currentPosition = nextPosition;
-                        continue;
-                    }
+                    int turnCost = (currentPosition.Direction == direction) ? 1 : 1001;
+                    int newScore = score + turnCost;
 
-                    currentPosition = new PositionWithDirection
-                    {
-                        Position = endPosition,
-                        Direction = 0
-                    };
+                    var nextPosition = new PositionWithDirection { Position = nextPoint, Direction = direction };
 
-                    if (!pathsAlreadyTraveled.Any())
-                    {
-                        allPathsExplored = true;
-                    }
-
+                    priorityQueue.Enqueue((nextPosition, newScore), newScore);
                 }
             }
 
             Console.WriteLine($"The path with the lowest score costs: {lowestScore}");
-        }
-
-        private static List<PositionWithDirection> SurveyAdjustcentPositions(PositionWithDirection currentPosition, string[,] map)
-        {
-            var possibleNextPositions = new List<PositionWithDirection>();
-            var xValueCount = map.GetLength(0);
-            var yValueCount = map.GetLength(1);
-
-            if (currentPosition.Position.X < xValueCount - 1 && currentPosition.Direction != Direction.North)
-            {
-                var nextPoint = currentPosition.Position with { X = currentPosition.Position.X + 1 };
-                if (map[nextPoint.X, nextPoint.Y].Equals(".") || map[nextPoint.X, nextPoint.Y].Equals("S"))
-                {
-                    var nextPosition = new PositionWithDirection
-                    {
-                        Position = nextPoint,
-                        Direction = Direction.South,
-                        IsFinal = map[nextPoint.X, nextPoint.Y].Equals("S")
-                    };
-                    possibleNextPositions.Add(nextPosition);
-                }
-            }
-
-            if (currentPosition.Position.X > 0 && currentPosition.Direction != Direction.South)
-            {
-                var nextPoint = currentPosition.Position with { X = currentPosition.Position.X - 1 };
-                if (map[nextPoint.X, nextPoint.Y].Equals(".") || map[nextPoint.X, nextPoint.Y].Equals("S"))
-                {
-                    var nextPosition = new PositionWithDirection
-                    {
-                        Position = nextPoint,
-                        Direction = Direction.North,
-                        IsFinal = map[nextPoint.X, nextPoint.Y].Equals("S")
-                    };
-                    possibleNextPositions.Add(nextPosition);
-                }
-            }
-
-            if (currentPosition.Position.Y > 0 && currentPosition.Direction != Direction.East)
-            {
-                var nextPoint = currentPosition.Position with { Y = currentPosition.Position.Y - 1 };
-                if (map[nextPoint.X, nextPoint.Y].Equals(".") || map[nextPoint.X, nextPoint.Y].Equals("S"))
-                {
-                    var nextPosition = new PositionWithDirection
-                    {
-                        Position = nextPoint,
-                        Direction = Direction.West,
-                        IsFinal = map[nextPoint.X, nextPoint.Y].Equals("S")
-                    };
-                    possibleNextPositions.Add(nextPosition);
-                }
-            }
-
-            if (currentPosition.Position.Y < yValueCount - 1 && currentPosition.Direction != Direction.West)
-            {
-                var nextPoint = currentPosition.Position with { Y = currentPosition.Position.Y + 1 };
-                if (map[nextPoint.X, nextPoint.Y].Equals(".") || map[nextPoint.X, nextPoint.Y].Equals("S"))
-                {
-                    var nextPosition = new PositionWithDirection
-                    {
-                        Position = nextPoint,
-                        Direction = Direction.East,
-                        IsFinal = map[nextPoint.X, nextPoint.Y].Equals("S")
-                    };
-                    possibleNextPositions.Add(nextPosition);
-                }
-            }
-
-            return possibleNextPositions;
         }
 
 
@@ -214,10 +80,14 @@ namespace AdventOfCode.Days
         {
             public Point Position { get; set; }
             public Direction Direction { get; set; }
-            public bool IsFinal { get; set; }
         }
 
-
+        private static readonly (int dx, int dy, Direction direction)[] Directions = [
+            (0, 1, Direction.South),
+            (1, 0, Direction.East),
+            (0, -1, Direction.North),
+            (-1, 0, Direction.West)
+        ];
 
         private enum Direction
         {
