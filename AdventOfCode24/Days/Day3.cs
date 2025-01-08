@@ -10,14 +10,14 @@ namespace AdventOfCode.Days
 
             const string commandPattern = @"(mul[(]\d{1,3}[,]\d{1,3}[)])";
 
-            var result = CalculatePart1(input, commandPattern);
+            var result = CalculateFirstPart(input, commandPattern);
 
             Console.WriteLine($"Sum of all results: {result}");
 
-            CalculatePart2(input, commandPattern);
+            CalculateSecondPart(input, commandPattern);
         }
 
-        private static void CalculatePart2(string input, string commandPattern)
+        private static void CalculateSecondPart(string input, string commandPattern)
         {
             const string invalidCommandSectionPattern = @"((don't\(\))((.|\n)*?))(?=(don't\(\))|(do\(\))|$)";
             input = Regex.Replace(input, invalidCommandSectionPattern, string.Empty);
@@ -38,7 +38,7 @@ namespace AdventOfCode.Days
             Console.WriteLine($"Sum of all valid command results: {result}");
         }
 
-        private static int CalculatePart1(string input, string commandPattern)
+        private static int CalculateFirstPart(string input, string commandPattern)
         {
             var result = 0;
 

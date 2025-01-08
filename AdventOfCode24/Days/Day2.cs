@@ -6,22 +6,22 @@
         {
             var input = ReadFile("Day2.txt");
 
-            CalculatePart1(input);
+            CalculateFirstPart(input);
 
-            CalculatePart2(input);
+            CalculateSecondPart(input);
         }
 
-        private static void CalculatePart2(string[] input)
+        private static void CalculateSecondPart(IEnumerable<string> input)
         {
             var safeReportsCounter = 0;
 
             foreach (var report in input)
             {
                 var reportUnpacked = report.Split(" ").Select(int.Parse).ToList();
-                Direction direction = reportUnpacked[0] > reportUnpacked[1]
+                var direction = reportUnpacked[0] > reportUnpacked[1]
                     ? Direction.Descending
                     : Direction.Ascending;
-                bool isProblematic = false;
+                var isProblematic = false;
                 var isSafe = true;
 
                 for (var counter = 0; counter < reportUnpacked.Count - 1; counter++)
@@ -95,7 +95,7 @@
             Console.WriteLine($"Number of safe reports after dampening: {safeReportsCounter}");
         }
 
-        private static void CalculatePart1(string[] input)
+        private static void CalculateFirstPart(IEnumerable<string> input)
         {
             var safeReportsCounter = 0;
 

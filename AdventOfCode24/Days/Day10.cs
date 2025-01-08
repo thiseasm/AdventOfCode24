@@ -30,8 +30,14 @@ public class Day10 : DayBase
             }
         }
 
-        CalculatePart1(trailHeadLocations, map, xValueCount, yValueCount, peakElevation);
+        CalculateFirstPart(trailHeadLocations, map, xValueCount, yValueCount, peakElevation);
         
+        CalculateSecondPart(trailHeadLocations, map, xValueCount, yValueCount, peakElevation);
+    }
+
+    private static void CalculateSecondPart(List<Point> trailHeadLocations, string[,] map, int xValueCount, int yValueCount,
+        int peakElevation)
+    {
         var sumOfScores = 0;
         foreach (var startingLocation in trailHeadLocations)
         {
@@ -107,7 +113,7 @@ public class Day10 : DayBase
         Console.WriteLine($"The sum of all trail scores is: {sumOfScores}");
     }
 
-    private static void CalculatePart1(List<Point> trailHeadLocations, string[,] map, int xValueCount, int yValueCount, int peakElevation)
+    private static void CalculateFirstPart(List<Point> trailHeadLocations, string[,] map, int xValueCount, int yValueCount, int peakElevation)
     {
         var sumOfScores = 0;
         foreach (var startingLocation in trailHeadLocations)

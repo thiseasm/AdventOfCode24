@@ -19,24 +19,21 @@
                 }
             }
 
-            CalculatePart1(xValueCount, yValueCount, puzzle);
+            CalculateFirstPart(xValueCount, yValueCount, puzzle);
                
-            Calculatepart2(xValueCount, yValueCount, puzzle);
+            CalculateSecondPart(xValueCount, yValueCount, puzzle);
         }
 
-        private static void Calculatepart2(int xValueCount, int yValueCount, char[,] puzzle)
+        private static void CalculateSecondPart(int xValueCount, int yValueCount, char[,] puzzle)
         {
-            int occurencesFound = 0;
+            var occurencesFound = 0;
             const string wordLookup = "MAS";
             const string wordLookupInverted = "SAM";
 
-            for (int x = 0; x < xValueCount; x++)
+            for (var x = 0; x < xValueCount; x++)
             {
-                for (int y = 0; y < yValueCount; y++)
+                for (var y = 0; y < yValueCount; y++)
                 {
-                    var firstWord = string.Empty;
-                    var secondWord = string.Empty;
-
                     if (puzzle[x, y] != 'A')
                     {
                         continue;
@@ -45,13 +42,13 @@
                     if (xValueCount - x > 1 && x > 0 && yValueCount - y > 1 && y > 0)
                     {
                         char[] charsFirst = { puzzle[x - 1, y - 1], puzzle[x, y], puzzle[x + 1, y + 1] };
-                        firstWord = new string(charsFirst);
+                        var firstWord = new string(charsFirst);
 
                         var firstWordMatches = firstWord.Equals(wordLookup, StringComparison.InvariantCultureIgnoreCase)
                             || firstWord.Equals(wordLookupInverted, StringComparison.InvariantCultureIgnoreCase);
 
                         char[] charsVertical = { puzzle[x - 1, y + 1], puzzle[x, y], puzzle[x + 1, y - 1] };
-                        secondWord = new string(charsVertical);
+                        var secondWord = new string(charsVertical);
 
                         var secondWordMatches = secondWord.Equals(wordLookup, StringComparison.InvariantCultureIgnoreCase)
                             || secondWord.Equals(wordLookupInverted, StringComparison.InvariantCultureIgnoreCase);
@@ -67,16 +64,16 @@
             Console.WriteLine($"Total occurences found: {occurencesFound}");
         }
 
-        private static void CalculatePart1(int xValueCount, int yValueCount, char[,] puzzle)
+        private static void CalculateFirstPart(int xValueCount, int yValueCount, char[,] puzzle)
         {
             const string wordLookup = "XMAS";
             var occurencesFound = 0;
 
-            for (int x = 0; x < xValueCount; x++)
+            for (var x = 0; x < xValueCount; x++)
             {
-                for (int y = 0; y < yValueCount; y++)
+                for (var y = 0; y < yValueCount; y++)
                 {
-                    var word = string.Empty;
+                    string word;
 
                     if (puzzle[x, y] != 'X')
                     {

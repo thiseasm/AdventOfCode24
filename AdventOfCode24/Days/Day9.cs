@@ -6,8 +6,13 @@ public class Day9 : DayBase
     {
         var inputs = ReadText("Day9.txt");
 
-        CalculatePart1(inputs);
+        CalculateFirstPart(inputs);
         
+        CalculateSecondPart(inputs);
+    }
+
+    private static void CalculateSecondPart(string inputs)
+    {
         var filesystem = GetFilesystem(inputs);
         
         for (var pointer = filesystem.Count - 1; pointer >= 0; pointer--)
@@ -116,7 +121,7 @@ public class Day9 : DayBase
         return filesystem;
     }
 
-    private static void CalculatePart1(string inputs)
+    private static void CalculateFirstPart(string inputs)
     {
         var fileId = 0;
         var isFile = true;

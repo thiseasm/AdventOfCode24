@@ -29,12 +29,12 @@
 
             var startingPosition = positionOfGuard;
 
-            CalculatePart1(xValueCount, yValueCount, map, positionOfGuard);
+            CalculateFirstPart(xValueCount, yValueCount, map, positionOfGuard);
 
             var locationsVisited = new List<(int, int)>();
-            for (int x = 0; x < xValueCount; x++)
+            for (var x = 0; x < xValueCount; x++)
             {
-                for (int y = 0; y < yValueCount; y++)
+                for (var y = 0; y < yValueCount; y++)
                 {
                     if (map[x, y] == 'X' && (x, y) != startingPosition)
                     {
@@ -45,7 +45,7 @@
 
             var possibleLocations = 0;
 
-            foreach ((int, int) location in locationsVisited)
+            foreach (var location in locationsVisited)
             {
                 var hypotheticalMap = (char[,])startingMap.Clone();
 
@@ -129,7 +129,7 @@
                         
                     }
 
-                    (int, int, char facingDirection) currentPosition = (positionOfGuard.Item1, positionOfGuard.Item2, facingDirection);
+                    var currentPosition = (positionOfGuard.Item1, positionOfGuard.Item2, facingDirection);
 
                     if(!positionsVisited.Add(currentPosition))
                     {
@@ -143,7 +143,7 @@
         }
 
 
-        private static void CalculatePart1(int xValueCount, int yValueCount, char[,] map, (int, int) positionOfGuard)
+        private static void CalculateFirstPart(int xValueCount, int yValueCount, char[,] map, (int, int) positionOfGuard)
         {
             var positionsVisited = 1;
             var facingDirection = '^';
